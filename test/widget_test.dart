@@ -61,7 +61,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.textContaining('番茄钟'), findsOneWidget);
@@ -103,7 +103,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     final firstId = controller.selectedTemplateId;
@@ -128,7 +128,7 @@ void main() {
     await controller.addTodo(text: '整理迁移方案');
     await controller.addTodo(text: '已经完成');
     await controller.setTodoProgressById(controller.todos.last.id, 100);
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byKey(const ValueKey('global-nav-goal-count')), findsOneWidget);
@@ -160,7 +160,7 @@ void main() {
     );
     await controller.initialize();
     await controller.selectTemplate('builtin.tabata');
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byKey(const ValueKey('template-menu-entry')), findsOneWidget);
@@ -178,7 +178,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     final title = find.byKey(const ValueKey('template-menu-title'));
@@ -201,7 +201,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     final orbCenter = tester.getCenter(
@@ -233,7 +233,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     final center = tester.getCenter(find.byKey(const ValueKey('timer-time')));
@@ -265,7 +265,7 @@ void main() {
     await controller.initialize();
     await controller.addTodo(text: '整理迁移方案', tags: ['工作']);
     final todoId = controller.todos.single.id;
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.byKey(const ValueKey('global-nav-goals')));
@@ -306,7 +306,7 @@ void main() {
     await controller.addTodo(text: '带标签事项', tags: const ['工作']);
     await controller.addTodo(text: '无标签事项');
     final taggedId = controller.todos.first.id;
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.byKey(const ValueKey('global-nav-goals')));
@@ -335,7 +335,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('25:00'), findsOneWidget);
@@ -352,7 +352,7 @@ void main() {
     await doneController.initialize();
     await doneController.addTodo(text: '窄屏目标');
     await doneController.selectTemplate('builtin.cardio');
-    await tester.pumpWidget(UpTimerApp(controller: doneController));
+    await tester.pumpWidget(InkTimerApp(controller: doneController));
     await tester.pump(const Duration(milliseconds: 300));
     await doneController.startSelectedSession();
     engineMs += 5000;
@@ -369,7 +369,7 @@ void main() {
     expect(tester.takeException(), isNull);
     doneController.dispose();
 
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.byKey(const ValueKey('template-menu-entry')));
     await tester.pump();
@@ -404,7 +404,7 @@ void main() {
     await controller.initialize();
     await controller.addTodo(text: '横屏目标');
     await controller.selectTemplate('builtin.cardio');
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await controller.startSelectedSession();
     engineMs += 5000;
     controller.tick();
@@ -436,7 +436,7 @@ void main() {
     await controller.initialize();
     await controller.addTodo(text: '双倍文字目标');
     await controller.selectTemplate('builtin.cardio');
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await controller.startSelectedSession();
     engineMs += 5000;
     controller.tick();
@@ -481,7 +481,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.text('簿'));
@@ -518,7 +518,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.text('···'));
@@ -541,7 +541,7 @@ void main() {
     );
     await controller.initialize();
     await controller.selectTemplate('builtin.cardio');
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await controller.startSelectedSession();
@@ -605,7 +605,7 @@ void main() {
     await controller.addTodo(text: '整理迁移方案');
     final todo = controller.todos.single;
     await controller.selectTemplate('builtin.cardio');
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await controller.startSelectedSession();
@@ -680,7 +680,7 @@ void main() {
       observeLifecycle: false,
     );
     await controller.initialize();
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
 
     await tester.tap(find.text('簿'));
@@ -744,7 +744,7 @@ void main() {
     expect(controller.growth.insights, contains('streak_7'));
     expect(controller.growth.insights, isNot(contains('streak_30')));
 
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('簿'));
     await tester.pump();
@@ -789,7 +789,7 @@ void main() {
 
     // 启动一个 90 分钟专注（触发「深坐」悟）。
     await controller.selectTemplate('builtin.cardio');
-    await tester.pumpWidget(UpTimerApp(controller: controller));
+    await tester.pumpWidget(InkTimerApp(controller: controller));
     await tester.pump();
 
     await controller.startSelectedSession();

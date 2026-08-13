@@ -1,4 +1,4 @@
-# Contributing to UpTimer
+# Contributing to InkTimer
 
 [English](#english) | [中文](#中文)
 
@@ -20,8 +20,8 @@
 
 ```bash
 # 1. Fork 并克隆仓库
-git clone https://github.com/YOUR_USERNAME/UpTimer.git
-cd UpTimer
+git clone https://github.com/YOUR_USERNAME/InkTimer.git
+cd InkTimer
 
 # 2. 安装依赖
 flutter pub get
@@ -110,7 +110,7 @@ flutter test --coverage
 
 ## English
 
-Thanks for your interest in UpTimer!
+Thanks for your interest in InkTimer!
 
 ### Development Environment
 
@@ -124,8 +124,8 @@ Thanks for your interest in UpTimer!
 
 ```bash
 # 1. Fork and clone the repository
-git clone https://github.com/YOUR_USERNAME/UpTimer.git
-cd UpTimer
+git clone https://github.com/YOUR_USERNAME/InkTimer.git
+cd InkTimer
 
 # 2. Install dependencies
 flutter pub get

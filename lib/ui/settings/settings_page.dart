@@ -77,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _export() async {
     final now = DateTime.now();
     final filename =
-        'uptimer-backup-${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
+        'inktimer-backup-${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
     final result = await widget.files.saveJson(
       filename,
       controller.exportBackup(),

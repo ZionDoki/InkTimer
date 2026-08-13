@@ -1,4 +1,4 @@
-# 成时 UpTimer
+# 成时 InkTimer
 
 [English](#english) | [中文](#中文)
 

@@ -29,5 +29,5 @@ Future<void> main() async {
     startupNotice: storage.notice,
   );
   await controller.initialize();
-  runApp(UpTimerApp(controller: controller));
+  runApp(InkTimerApp(controller: controller));
 }

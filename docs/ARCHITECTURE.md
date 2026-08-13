@@ -1,6 +1,6 @@
 # Architecture
 
-UpTimer follows a clean architecture pattern with clear separation between domain logic, data persistence, and UI.
+InkTimer follows a clean architecture pattern with clear separation between domain logic, data persistence, and UI.
 
 ## Directory Structure
 

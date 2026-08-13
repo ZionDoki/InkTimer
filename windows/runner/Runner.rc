@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.uptimer" "\0"
-            VALUE "FileDescription", "成时 UpTimer" "\0"
+            VALUE "FileDescription", "成时 InkTimer" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "uptimer" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.uptimer. All rights reserved." "\0"
             VALUE "OriginalFilename", "uptimer.exe" "\0"
-            VALUE "ProductName", "成时 UpTimer" "\0"
+            VALUE "ProductName", "成时 InkTimer" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

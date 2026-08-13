@@ -4,8 +4,8 @@ import 'state/app_controller.dart';
 import 'ui/home/home_screen.dart';
 import 'ui/theme/zen_theme.dart';
 
-class UpTimerApp extends StatelessWidget {
-  const UpTimerApp({super.key, required this.controller});
+class InkTimerApp extends StatelessWidget {
+  const InkTimerApp({super.key, required this.controller});
 
   final AppController controller;
 
