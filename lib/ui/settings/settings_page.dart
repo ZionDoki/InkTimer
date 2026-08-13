@@ -31,6 +31,10 @@ class _SettingsPageState extends State<SettingsPage> {
   Timer? _historyTimer;
   late final Future<PackageInfo> _packageInfo;
 
+  /// 当前展开的数据动作：'export' / 'import' / null。一次只展开一个。
+  String? _openAction;
+  BackupDefaultInfo? _defaultInfo;
+
   AppController get controller => widget.controller;
 
   @override
@@ -38,6 +42,26 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     _packageInfo = PackageInfo.fromPlatform();
     controller.addListener(_changed);
+    unawaited(_refreshDefaultInfo());
+  }
+
+  Future<void> _refreshDefaultInfo() async {
+    // Web 没有可回读的固定位置，也不需要查询默认文件状态。
+    if (!widget.files.supportsDefaultLocation) return;
+    final info = await widget.files.defaultInfo();
+    if (mounted) setState(() => _defaultInfo = info);
+  }
+
+  void _toggleAction(String action) {
+    setState(() => _openAction = _openAction == action ? null : action);
+  }
+
+  String _formatSavedAt(DateTime time) {
+    final month = time.month.toString().padLeft(2, '0');
+    final day = time.day.toString().padLeft(2, '0');
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$month-$day $hour:$minute';
   }
 
   @override
@@ -74,44 +98,82 @@ class _SettingsPageState extends State<SettingsPage> {
       );
   }
 
-  Future<void> _export() async {
-    final now = DateTime.now();
-    final filename =
-        'inktimer-backup-${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
-    final result = await widget.files.saveJson(
-      filename,
-      controller.exportBackup(),
-    );
+  Future<void> _exportToDefault() async {
+    final result = await widget.files.saveToDefault(controller.exportBackup());
     if (!mounted) return;
-    _toast(result.saved ? '已 封 存' : '未 保 存');
-    if (result.saved && result.location != null && result.location != '浏览器下载') {
-      await showDialog<void>(
-        context: context,
-        builder: (context) {
-          final palette = ZenPalette.of(context);
-          return AlertDialog(
-            backgroundColor: palette.paper,
-            title: Text('封 存 所 在', style: inkText(context, spacing: 4)),
-            content: SelectableText(
-              result.location!,
-              style: TextStyle(fontSize: 12, color: palette.inkSoft),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('知 道', style: inkText(context, spacing: 3)),
-              ),
-            ],
-          );
-        },
-      );
+    await _refreshDefaultInfo();
+    if (!mounted) return;
+    setState(() => _openAction = null);
+    if (!result.saved) {
+      _toast('未 保 存');
+      return;
+    }
+    _toast(
+      result.location == backupDownloadLocation
+          ? '已 封 存 · 浏 览 器 下 载'
+          : '已 封 存 · 默 认 位 置',
+    );
+  }
+
+  Future<void> _exportToPicked() async {
+    final result = await widget.files.saveAs(controller.exportBackup());
+    if (!mounted) return;
+    if (!result.saved) {
+      _toast('未 保 存');
+      return;
+    }
+    setState(() => _openAction = null);
+    _toast('已 封 存');
+    final location = result.location;
+    if (location != null && location != backupDownloadLocation) {
+      await _showLocation(location);
     }
   }
 
-  Future<void> _import() async {
+  Future<void> _showLocation(String location) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        final palette = ZenPalette.of(context);
+        return AlertDialog(
+          backgroundColor: palette.paper,
+          title: Text('封 存 所 在', style: inkText(context, spacing: 4)),
+          content: SelectableText(
+            location,
+            style: TextStyle(fontSize: 12, color: palette.inkSoft),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('知 道', style: inkText(context, spacing: 3)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _importFromDefault() async {
+    final content = await widget.files.readFromDefault();
+    if (!mounted) return;
+    if (content == null) {
+      _toast('默 认 位 置 尚 无 备 份');
+      return;
+    }
+    setState(() => _openAction = null);
+    await _applyImport(content);
+  }
+
+  Future<void> _importFromPicked() async {
+    final content = await widget.files.pickJson();
+    if (content == null) return;
+    if (!mounted) return;
+    setState(() => _openAction = null);
+    await _applyImport(content);
+  }
+
+  Future<void> _applyImport(String content) async {
     try {
-      final content = await widget.files.pickJson();
-      if (content == null) return;
       final report = await controller.importBackup(content);
       if (!mounted) return;
       if (report.changed == 0 && report.skipped > 0) {
@@ -163,6 +225,16 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final settings = controller.settings;
     final palette = ZenPalette.of(context);
+    final info = _defaultInfo;
+    // 这里只区分原生端与 Web；原生端即使目录暂时异常，也保留「另选位置」。
+    final hasDefaultLocation = widget.files.supportsDefaultLocation;
+    final defaultDetail = info == null
+        ? ''
+        : !info.supported
+        ? '不 可 用'
+        : info.savedAt != null
+        ? '已 有 · ${_formatSavedAt(info.savedAt!)}'
+        : '尚 无';
     return ZenPage(
       title: '设 置',
       child: Column(
@@ -251,12 +323,61 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           const ZenSectionTitle('数 据'),
-          _ActionRow(
-            label: '封 存 备 份',
-            detail: 'templates · sessions · todos · settings',
-            onTap: _export,
-          ),
-          _ActionRow(label: '收 录 备 份', onTap: _import),
+          if (hasDefaultLocation)
+            _ExpandableAction(
+              id: 'export',
+              label: '封 存 备 份',
+              detail: 'templates · sessions · todos · settings',
+              expanded: _openAction == 'export',
+              onTap: () => _toggleAction('export'),
+              children: [
+                _SubActionRow(
+                  key: const ValueKey('export-default'),
+                  label: '默 认 位 置',
+                  detail: defaultDetail,
+                  onTap: _exportToDefault,
+                ),
+                _SubActionRow(
+                  key: const ValueKey('export-pick'),
+                  label: '另 选 位 置',
+                  onTap: _exportToPicked,
+                ),
+              ],
+            )
+          else
+            _ActionRow(
+              key: const ValueKey('export-action'),
+              label: '封 存 备 份',
+              detail: '浏览器下载',
+              onTap: _exportToDefault,
+            ),
+          if (hasDefaultLocation)
+            _ExpandableAction(
+              id: 'import',
+              label: '收 录 备 份',
+              expanded: _openAction == 'import',
+              onTap: () => _toggleAction('import'),
+              children: [
+                _SubActionRow(
+                  key: const ValueKey('import-default'),
+                  label: '默 认 位 置',
+                  detail: defaultDetail,
+                  onTap: _importFromDefault,
+                ),
+                _SubActionRow(
+                  key: const ValueKey('import-pick'),
+                  label: '另 选 文 件',
+                  onTap: _importFromPicked,
+                ),
+              ],
+            )
+          else
+            _ActionRow(
+              key: const ValueKey('import-action'),
+              label: '收 录 备 份',
+              detail: '选择备份文件',
+              onTap: _importFromPicked,
+            ),
           _ActionRow(
             label: _confirmClearHistory ? '确 认 清 空 功 课 簿' : '清 空 功 课 簿',
             danger: _confirmClearHistory,
@@ -431,8 +552,149 @@ class _InkSwitch extends StatelessWidget {
   }
 }
 
+/// 点一下展开两个位置选项，高度与透明度一同过渡。
+class _ExpandableAction extends StatelessWidget {
+  const _ExpandableAction({
+    required this.id,
+    required this.label,
+    required this.expanded,
+    required this.onTap,
+    required this.children,
+    this.detail,
+  });
+
+  /// 行的标识，用来派生标题行与选项区的 key。
+  final String id;
+  final String label;
+  final String? detail;
+  final bool expanded;
+  final VoidCallback onTap;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = ZenPalette.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: palette.inkFaint)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            key: ValueKey('$id-action'),
+            onTap: onTap,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 58),
+              padding: const EdgeInsets.symmetric(vertical: 11),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: inkText(context, size: 11, spacing: 3),
+                    ),
+                  ),
+                  if (detail != null)
+                    Flexible(
+                      child: Text(
+                        detail!,
+                        textAlign: TextAlign.right,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 11, color: palette.inkSoft),
+                      ),
+                    ),
+                  const SizedBox(width: 6),
+                  AnimatedRotation(
+                    turns: expanded ? 0.25 : 0,
+                    duration: const Duration(milliseconds: 240),
+                    curve: Curves.easeOutCubic,
+                    child: Icon(
+                      Icons.chevron_right,
+                      size: 15,
+                      color: palette.inkSoft,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          AnimatedCrossFade(
+            key: ValueKey('$id-options'),
+            duration: const Duration(milliseconds: 240),
+            sizeCurve: Curves.easeOutCubic,
+            firstCurve: Curves.easeOutCubic,
+            secondCurve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            crossFadeState: expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(left: 12, bottom: 6),
+              decoration: BoxDecoration(
+                border: Border(left: BorderSide(color: palette.inkFaint)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SubActionRow extends StatelessWidget {
+  const _SubActionRow({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.detail,
+  });
+
+  final String label;
+  final String? detail;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = ZenPalette.of(context);
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.only(left: 14, top: 9, bottom: 9, right: 2),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: inkText(context, size: 11, spacing: 2.5),
+              ),
+            ),
+            if (detail != null)
+              Flexible(
+                child: Text(
+                  detail!,
+                  textAlign: TextAlign.right,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10, color: palette.inkSoft),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ActionRow extends StatelessWidget {
   const _ActionRow({
+    super.key,
     required this.label,
     required this.onTap,
     this.detail,
