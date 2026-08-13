@@ -1,0 +1,71 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Android
+*.iml
+.gradle
+local.properties
+.idea/
+*.hprof
+.cxx/
+android/keystore.properties
+
+# iOS/Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+**/xcshareddata/WorkspaceSettings.xcsettings
+Pods/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+coverage/
+
+# Generated code
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Platform ephemeral
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+
+# Release artifacts
+*.apk
+*.apk.idsig
+*.aab
+releases/
+
+# Signing keys (DO NOT COMMIT)
+uptimer-release.keystore
+
+# Session/temporary files
+.superpowers/
+*.session
+.pi-subagents/

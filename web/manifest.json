@@ -1,0 +1,35 @@
+{
+    "name": "成时 UpTimer",
+    "short_name": "成时",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#efeade",
+    "theme_color": "#241f1a",
+    "description": "禅意水墨风番茄钟与运动计时器",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
